@@ -13,24 +13,40 @@ const module = !function () {
     hide: element => element.classList.add('hidden')
   };
   // start state (board and win page hidden)
-  const startScreen = (() => {
+  const startScreen = () => {
+    display.show(pages.start);
     display.hide(pages.board);
     display.hide(pages.finish);
     state = "start";
-  })();
+  };
+  startScreen();
   // play state (start and win page hidden)
   const playScreen = () => {
     display.hide(pages.start);
+    display.hide(pages.finish);
     display.show(pages.board);
+    state = "game";
   };
-// START GAME FUNCTION
-  const startButton = (element => {
-    element.addEventListener('click', e => {
-      if (e.target.classList.contains('button')) {
-        playScreen();
+// GAME START
+// initializer
+const init = playerBar => {
+  playerBar.classList.add('active');
+  state = "game";
+};
+// start button listener
+  pages.start.addEventListener('click', e => {
+    if (e.target.classList.contains('button')) {
+      init(players.player1);
+      playScreen();
+      if (e.target.id === "two-player") {
+        state = "gameTwoPlayer";
+        console.log(state);
+      }
+      else if(e.target.id === "computer") {
+        state = "gameComputer";
       };
-    });
-})(pages.start);
+    };
+  });
 // PLAYER STATE AND BOXES VARIABLES
   // player bars
   const players = {
@@ -131,10 +147,6 @@ const module = !function () {
   };
 // MAIN GAME FUNCTIONS
   // initialize game (player 1 turn)
-  const init = (playerBar => {
-    playerBar.classList.add('active');
-    state = "game";
-  })(players.player1);
   // remove svgs
   const removeSVG = collection => {
     for (let i = 0; i < collection.children.length; i++) {
@@ -155,43 +167,64 @@ const module = !function () {
     };
   };
   // board hover listener
-  const hoverListener = (element => {
-    element.addEventListener('mouseover', e => {
-      let box = e.target;
-      if (box.classList.contains('box')) {
+  pages.board.addEventListener('mouseover', e => {
+    let box = e.target;
+    if (box.classList.contains('box')) {
+      if (!box.classList.contains('box-filled-1') && !box.classList.contains('box-filled-2')) {
         // remove svgs
         removeSVG(boxesUL);
         // show svg
         showSVG(box);
       };
-    })
-  })(pages.board);
+    };
+  });
   // board click listener
-  const clickListener = (element => {
-    element.addEventListener('click', e => {
-      let box = e.target;
-      // check if box is empty
-      if (!box.classList.contains('box-filled-1') && !box.classList.contains('box-filled-2')) {
-          // player 1 (o)
-          if (players.player1.classList.contains('active')) {
-            storeMoves(box);
-            checkFinish(boxesUL);
-            box.classList.add('box-filled-1');
-            players.player1.classList.remove('active');
-            players.player2.classList.add('active');
-          // player 2 (x)
-          } else if (players.player2.classList.contains('active')) {
-            storeMoves(box);
-            checkFinish(boxesUL);
-            box.classList.add('box-filled-2');
-            players.player2.classList.remove('active');
-            players.player1.classList.add('active');
-          };
+  pages.board.addEventListener('click', e => {
+    let box = e.target;
+    // check if box is empty
+    if (!box.classList.contains('box-filled-1') && !box.classList.contains('box-filled-2')) {
+      // player 1 (o)
+      if (players.player1.classList.contains('active')) {
+      storeMoves(box);
+      checkFinish(boxesUL);
+      box.classList.add('box-filled-1');
+      players.player1.classList.remove('active');
+      players.player2.classList.add('active');
+      // player 2 (x)
+      } else if (players.player2.classList.contains('active')) {
+      storeMoves(box);
+      checkFinish(boxesUL);
+      box.classList.add('box-filled-2');
+      players.player2.classList.remove('active');
+      players.player1.classList.add('active');
       };
-    })
-  })(pages.board);
-
-
-
-
+    };
+  });
+// RESTART
+  // reset boxes function
+  const resetBoxes = collection => {
+    for (let i = 0; i < collection.children.length; i++) {
+      let box = collection.children[i];
+      if(box.classList.contains('box-filled-1')) {
+        box.classList.remove('box-filled-1');
+      } else if (box.classList.contains('box-filled-2')) {
+        box.classList.remove('box-filled-2');
+      };
+    };
+    removeSVG(collection);
+  };
+  // clear moves arrays
+  const clearMoves = () => {
+    player1Moves = [];
+    player2Moves = [];
+  };
+  // reset button listener
+  pages.finish.addEventListener('click', e => {
+    if (e.target.classList.contains('button')) {
+      resetBoxes(boxesUL);
+      clearMoves();
+      playScreen();
+      init(players.player1);
+    };
+  });
 }();
