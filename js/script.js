@@ -38,13 +38,7 @@ const init = playerBar => {
     if (e.target.classList.contains('button')) {
       init(players.player1);
       playScreen();
-      if (e.target.id === "two-player") {
-        state = "gameTwoPlayer";
-        console.log(state);
-      }
-      else if(e.target.id === "computer") {
-        state = "gameComputer";
-      };
+      state = "game";
     };
   });
 // PLAYER STATE AND BOXES VARIABLES
@@ -96,12 +90,14 @@ const init = playerBar => {
           check1 += 1;
           if (check1 === 3) {
             state = "win1";
+            console.log(state);
           };
         };
         if (player2Moves.includes(number)) {
           check2 += 1;
           if (check2 === 3) {
             state = "win2"
+            console.log(state);
           };
         };
       });
@@ -113,9 +109,11 @@ const init = playerBar => {
     for (let i = 0; i < element.children.length; i++) {
       if (element.children[i].classList.contains('box-filled-1') || element.children[i].classList.contains('box-filled-2')) {
         check += 1;
-      };
-      if (check === 9) {
-        state = "tie";
+        if (check === 9) {
+          if (state !== "win1" && state !== "win2") {
+            state = "tie";
+          };
+        };
       };
     };
   };
@@ -123,16 +121,23 @@ const init = playerBar => {
   const finishScreen = () => {
     const message = document.querySelector('.message');
     if (state === "win1") {
+      pages.finish.classList.remove('screen-win-two');
+      pages.finish.classList.remove('screen-win-tie');
       pages.finish.classList.add('screen-win-one');
       message.innerHTML = "Winner";
       display.hide(pages.board);
       display.show(pages.finish);
     } else if (state === "win2") {
+      pages.finish.classList.remove('screen-win-one');
+      pages.finish.classList.remove('screen-win-tie');
       pages.finish.classList.add('screen-win-two');
       message.innerHTML = "Winner";
       display.hide(pages.board);
       display.show(pages.finish);
     } else if (state === "tie") {
+      console.log(state);
+      pages.finish.classList.remove('screen-win-one');
+      pages.finish.classList.remove('screen-win-two');
       pages.finish.classList.add('screen-win-tie');
       message.innerHTML = "It's a tie!";
       display.hide(pages.board);
@@ -140,9 +145,9 @@ const init = playerBar => {
     };
   };
   // check for finish and act accordingly
-  const checkFinish = element => {
+  const checkFinish = () => {
     checkWin();
-    checkTie(element);
+    checkTie(boxesUL);
     finishScreen();
   };
 // MAIN GAME FUNCTIONS
