@@ -19,13 +19,16 @@ h1 {
   background: #fff;
   border-radius: 4px;
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
-  display: inline-block;
+  display: block;
+  width: 25%;
+  margin: 3em auto;
   padding: 1.25em 3em;
   text-decoration: none;
   -webkit-transition: 0.25s ease;
   transition: 0.25s ease; }
   .button:hover {
-    color: #000; }
+    color: #000;
+    transform: translateY(-10px); }
 
 .screen {
   text-align: center;

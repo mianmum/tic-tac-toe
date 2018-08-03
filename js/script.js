@@ -25,22 +25,12 @@ const module = !function () {
     display.hide(pages.start);
     display.hide(pages.finish);
     display.show(pages.board);
-    state = "game";
   };
 // GAME START
 // initializer
 const init = playerBar => {
   playerBar.classList.add('active');
-  state = "game";
 };
-// start button listener
-  pages.start.addEventListener('click', e => {
-    if (e.target.classList.contains('button')) {
-      init(players.player1);
-      playScreen();
-      state = "game";
-    };
-  });
 // PLAYER STATE AND BOXES VARIABLES
   // player bars
   const players = {
@@ -171,39 +161,79 @@ const init = playerBar => {
       element.style.backgroundImage = "url('img/x.svg')";
     };
   };
-  // board hover listener
-  pages.board.addEventListener('mouseover', e => {
-    let box = e.target;
-    if (box.classList.contains('box')) {
-      if (!box.classList.contains('box-filled-1') && !box.classList.contains('box-filled-2')) {
-        // remove svgs
-        removeSVG(boxesUL);
-        // show svg
-        showSVG(box);
+
+  // Start button listener
+    pages.start.addEventListener('click', e => {
+      if (e.target.classList.contains('button')) {
+        init(players.player1);
+        playScreen();
+        if (e.target.id === "twoPlayer") {
+          state = "twoPlayerGame";
+        } else {
+          state = "soloGame";
+        };
+      };
+    });
+    // board hover listener
+    pages.board.addEventListener('mouseover', e => {
+      let box = e.target;
+      if (box.classList.contains('box')) {
+        if (!box.classList.contains('box-filled-1') && !box.classList.contains('box-filled-2')) {
+          // remove svgs
+          removeSVG(boxesUL);
+          // show svg
+          showSVG(box);
+        };
+      };
+    });
+  // BOT PROGRAM
+    // generate random number function
+    const randomNumber = () => {
+      return Math.floor(Math.random() * (8)) + 1
+    };
+    const bot = collection => {
+      let randomBox = randomNumber();
+      console.log(randomBox);
+      for (let i = 0; i < collection.length; i++) {
+        console.log(collection[i].id);
+        if (collection[i].id == randomBox) {
+          console.log(collection[i].id)
+          if (!collection[i].classList.contains('box-filled-1') && !collection[i].classList.contains('box-filled-2')) {
+            collection[i].classList.add('box-filled-2');
+            showSVG(collection[i]);
+            players.player2.classList.remove('active');
+            players.player1.classList.add('active');
+          } else {
+            bot(collection);
+          }
+        };
       };
     };
-  });
   // board click listener
   pages.board.addEventListener('click', e => {
     let box = e.target;
     // check if box is empty
-    if (!box.classList.contains('box-filled-1') && !box.classList.contains('box-filled-2')) {
+      if (!box.classList.contains('box-filled-1') && !box.classList.contains('box-filled-2')) {
       // player 1 (o)
-      if (players.player1.classList.contains('active')) {
-      storeMoves(box);
-      checkFinish(boxesUL);
-      box.classList.add('box-filled-1');
-      players.player1.classList.remove('active');
-      players.player2.classList.add('active');
-      // player 2 (x)
-      } else if (players.player2.classList.contains('active')) {
-      storeMoves(box);
-      checkFinish(boxesUL);
-      box.classList.add('box-filled-2');
-      players.player2.classList.remove('active');
-      players.player1.classList.add('active');
+        if (players.player1.classList.contains('active')) {
+          storeMoves(box);
+          checkFinish(boxesUL);
+          box.classList.add('box-filled-1');
+          players.player1.classList.remove('active');
+          players.player2.classList.add('active');
+          if (state === "soloGame") {
+            bot(boxesUL.children);
+            return;
+          };
+          // player 2 (x)
+        } else if (players.player2.classList.contains('active')) {
+          storeMoves(box);
+          checkFinish(boxesUL);
+          box.classList.add('box-filled-2');
+          players.player2.classList.remove('active');
+          players.player1.classList.add('active');
+        };
       };
-    };
   });
 // RESTART
   // reset boxes function
@@ -228,8 +258,9 @@ const init = playerBar => {
     if (e.target.classList.contains('button')) {
       resetBoxes(boxesUL);
       clearMoves();
-      playScreen();
+      startScreen();
       init(players.player1);
     };
   });
+// end of module
 }();
